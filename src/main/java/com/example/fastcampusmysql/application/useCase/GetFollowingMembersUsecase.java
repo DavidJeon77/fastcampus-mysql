@@ -1,5 +1,6 @@
 package com.example.fastcampusmysql.application.useCase;
 
+import com.example.fastcampusmysql.domain.follow.entity.Follow;
 import com.example.fastcampusmysql.domain.follow.service.FollowReadService;
 import com.example.fastcampusmysql.domain.member.dto.MemberDto;
 import com.example.fastcampusmysql.domain.member.service.MemberReadService;
@@ -17,7 +18,11 @@ public class GetFollowingMembersUsecase {
 
     public List<MemberDto> execute(Long memberId) {
         var followings = followReadService.getFollowings(memberId);
+        var followingMemberIds = followings.stream().map(Follow::getToMemberId).toList();
+        return memberReadService.getMembers(followingMemberIds);
 
     }
+
+    ;
 
 }

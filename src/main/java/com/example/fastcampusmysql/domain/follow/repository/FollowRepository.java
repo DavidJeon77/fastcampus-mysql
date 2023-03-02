@@ -32,7 +32,7 @@ public class FollowRepository {
             .build();
 
     public List<Follow> findAllByFromMemberId(Long fromMemberId) {
-        var sql = String.format("SELECT * FROM %s WHERE fromMemberId = ?", TABLE);
+        var sql = String.format("SELECT * FROM %s WHERE fromMemberId = :fromMemberId", TABLE);
         var params = new MapSqlParameterSource().addValue("fromMemberId", fromMemberId);
         return namedParameterJdbcTemplate.query(sql, params, ROW_MAPPER);
     }
