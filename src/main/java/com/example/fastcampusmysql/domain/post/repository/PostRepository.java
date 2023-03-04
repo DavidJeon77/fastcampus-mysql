@@ -19,7 +19,7 @@ import java.util.List;
 @Repository
 public class PostRepository {
 
-    final static String TABLE = "Post";
+    final static String TABLE = "POST";
 
     final private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
