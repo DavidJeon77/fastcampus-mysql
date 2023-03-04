@@ -98,3 +98,10 @@ create index POST__index_member_id_created_date
     on POST (memberId, createdDate);
 
 
+-- pagination
+select *
+from POST
+where memberId = 5
+limit 2 offset 0;
+order by
+
