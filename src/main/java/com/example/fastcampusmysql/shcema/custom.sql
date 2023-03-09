@@ -98,10 +98,19 @@ create index POST__index_member_id_created_date
     on POST (memberId, createdDate);
 
 
+-- pagination - limit & offset
+select *
+from POST
+where memberId = 1
+order by id desc
+limit 2 offset 0;
+
 -- pagination
 select *
 from POST
-where memberId = 5
-limit 2 offset 0;
-order by
+where memberId = 1
+  and id > 1000
+order by id asc;
+
+
 
