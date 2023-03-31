@@ -39,6 +39,10 @@ public class PostReadService {
         return new PageCursor<>(cursorRequest.next(nextKey), posts);
     }
 
+    public List<Post> getPostss(List<Long> ids) {
+        return postRepository.findAllByInId(ids);
+    }
+
     private List<Post> findByAll(Long memberId, CursorRequest cursorRequest) {
         if (cursorRequest.hasKey()) {
             return postRepository.findAllByLessThanIdAndMemberIdAndOrderByIdDesc(cursorRequest.key(), memberId, cursorRequest.size());
@@ -60,4 +64,7 @@ public class PostReadService {
                 .orElse(CursorRequest.NONE_KEY);
     }
 
+//    public Object getPosts(List<Long> postIds) {
+//
+//    }
 }

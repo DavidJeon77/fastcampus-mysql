@@ -29,10 +29,7 @@ public class TimelineRepository {
             .createdAt(resultSet.getObject("createdAt", LocalDateTime.class))
             .build();
 
-    public List<Timeline> findAllByMemberIdOrderByIdDesc(
-            Long memberId,
-            int size
-    ) {
+    public List<Timeline> findAllByMemberIdOrderByIdDesc(Long memberId, int size) {
         var sql = String.format("""
                 SELECT *
                 FROM %s
@@ -93,6 +90,7 @@ public class TimelineRepository {
                 INSERT INTO %s (memberId, postId, createdAt)
                 VALUES (:memberId, :postId, :createdAt)
                 """, TABLE);
+        
         SqlParameterSource[] params = timelines
                 .stream()
                 .map(BeanPropertySqlParameterSource::new)

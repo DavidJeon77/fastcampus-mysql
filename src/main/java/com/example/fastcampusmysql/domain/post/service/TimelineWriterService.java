@@ -12,16 +12,12 @@ import java.util.List;
 public class TimelineWriterService {
     final private TimelineRepository timelineRepository;
 
-    public void deliveryToTimeline(
-            Long postId,
-            List<Long> toMemberIds
-    ) {
+    public void deliveryToTimeline(Long postId, List<Long> toMemberIds) {
         var timeLines = toMemberIds.stream()
                 .map((memberId) -> toTimeline(postId, memberId))
                 .toList();
 
         timelineRepository.bulkInsert(timeLines);
-
 
     }
 
