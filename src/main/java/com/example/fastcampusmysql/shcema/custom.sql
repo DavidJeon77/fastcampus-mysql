@@ -112,5 +112,28 @@ where memberId = 1
   and id > 1000
 order by id asc;
 
+create table Timeline
+(
+    id        int auto_increment,
+    memberId  int      not null,
+    postId    int      not null,
+    createdAt datetime not null,
+    constraint Timeline_id_uindex
+        primary key (id)
+);
+
+commit;
+
+select *
+from Follow;
+
+select *
+from POST
+where memberId = 1
+order by createdAt DESC
+limit 10;
+
+
+
 
 

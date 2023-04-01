@@ -29,7 +29,7 @@ public class TimelineRepository {
             .createdAt(resultSet.getObject("createdAt", LocalDateTime.class))
             .build();
 
-    public List<Timeline> findAllByMemberIdOrderByIdDesc(Long memberId, int size) {
+    public List<Timeline> findAllByMemberIdAndOrderByIdDesc(Long memberId, int size) {
         var sql = String.format("""
                 SELECT *
                 FROM %s
