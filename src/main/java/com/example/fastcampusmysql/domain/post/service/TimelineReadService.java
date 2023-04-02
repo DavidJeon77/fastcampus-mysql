@@ -15,18 +15,14 @@ public class TimelineReadService {
 
     final private TimelineRepository timelineRepository;
 
-    public List<Timeline> getTimeLines(Long memberId, CursorRequest cursorRequest) {
-        return findByAll(memberId, cursorRequest);
-    }
+    public PageCursor<Timeline> getTimelines(Long memberId, CursorRequest cursorRequest) {
+        var timelines = findByAll(memberId, cursorRequest);
 
-//    public PageCursor<Timeline> getTimelines(Long memberId, CursorRequest cursorRequest) {
-//        var timelines = findByAll(memberId, cursorRequest);
-//
-//        var nextKey = timelines.stream()
-//                .mapToLong(Timeline::getId)
-//                .min().orElse(CursorRequest.NONE_KEY);
-//        return new PageCursor(cursorRequest.next(nextKey), timelines);
-//    }
+        var nextKey = timelines.stream()
+                .mapToLong(Timeline::getId)
+                .min().orElse(CursorRequest.NONE_KEY);
+        return new PageCursor(cursorRequest.next(nextKey), timelines);
+    }
 
     private List<Timeline> findByAll(Long memberId, CursorRequest cursorRequest) {
         if (cursorRequest.hasKey()) {

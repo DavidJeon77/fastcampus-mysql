@@ -25,6 +25,8 @@ public class GetTimelinePostsUseCase {
     }
 
     public PageCursor<Post> executeByTimeline(Long memberId, CursorRequest cursorRequest) {
+
+
         var pagedTimelines = timelineReadService.getTimelines(memberId, cursorRequest);
         var postIds = pagedTimelines.body().stream().map(Timeline::getPostId).toList();
         var posts = postReadService.getPostss(postIds);
