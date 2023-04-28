@@ -1,8 +1,10 @@
 package com.example.fastcampusmysql.application.useCase.controller;
 
 
+import com.example.fastcampusmysql.application.useCase.CreatePostLikeUsecase;
 import com.example.fastcampusmysql.application.useCase.CreatePostUsecase;
 import com.example.fastcampusmysql.application.useCase.GetTimelinePostsUseCase;
+import com.example.fastcampusmysql.domain.member.dto.PostDto;
 import com.example.fastcampusmysql.domain.post.dto.DailyPostCount;
 import com.example.fastcampusmysql.domain.post.dto.DailyPostCountRequest;
 import com.example.fastcampusmysql.domain.post.dto.PostCommand;
@@ -28,6 +30,8 @@ public class PostController {
 
     final private CreatePostUsecase createPostUsecase;
 
+    final private CreatePostLikeUsecase createPostLikeUsecase;
+
     @PostMapping("")
     public Long create(PostCommand command) {
         return createPostUsecase.execute(command);
@@ -39,27 +43,31 @@ public class PostController {
     }
 
     @GetMapping("/members/{memberId}")
-    public Page<Post> getPosts(
-            @PathVariable Long memberId,
-            Pageable pageable
-    ) {
+    public Page<PostDto> getPosts(@PathVariable Long memberId, Pageable pageable) {
         return postReadService.getPosts(memberId, pageable);
     }
 
     @GetMapping("/members/{memberId}/by-cursor")
-    public PageCursor<Post> getPostsByCursor(
-            @PathVariable Long memberId,
-            CursorRequest cursorRequest
-    ) {
+    public PageCursor<Post> getPostsByCursor(@PathVariable Long memberId, CursorRequest cursorRequest) {
         return postReadService.getPosts(memberId, cursorRequest);
     }
 
     @GetMapping("/member/{memberId}/timeline")
-    public PageCursor<Post> getTimeline(
-            @PathVariable Long memberId,
-            CursorRequest cursorRequest
-    ) {
+    public PageCursor<Post> getTimeline(@PathVariable Long memberId, CursorRequest cursorRequest) {
         return getTimelinePostsUseCase.executeByTimeline(memberId, cursorRequest);
+    }
+
+    @PostMapping("/{postId}/like/v1")
+    public void likePost(@PathVariable Long postId) {
+//        postWriteService.likePost(postId);
+        postWriteService.likePostWithOptimisticLock(postId);
+    }
+
+    @PostMapping("/{postId}/like/v2")
+    public void likePostV2(@PathVariable Long postId, @RequestParam Long memberId) {
+//        postWriteService.likePost(postId);
+//        postWriteService.likePostWithOptimisticLock(postId);
+        createPostLikeUsecase.execute(postId, memberId);
     }
 
 }

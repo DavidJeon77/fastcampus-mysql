@@ -18,6 +18,7 @@ import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Repository
@@ -27,7 +28,15 @@ public class PostRepository {
 
     final private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    final private static RowMapper<Post> ROW_MAPPER = (ResultSet resultSet, int rowNum) -> Post.builder().id(resultSet.getLong("id")).memberId(resultSet.getLong("memberId")).contents(resultSet.getString("contents")).createdDate(resultSet.getObject("createdDate", LocalDate.class)).createdAt(resultSet.getObject("createdAt", LocalDateTime.class)).build();
+    final private static RowMapper<Post> ROW_MAPPER = (ResultSet resultSet, int rowNum) -> Post.builder()
+            .id(resultSet.getLong("id"))
+            .memberId(resultSet.getLong("memberId"))
+            .contents(resultSet.getString("contents"))
+            .createdDate(resultSet.getObject("createdDate", LocalDate.class))
+            .createdAt(resultSet.getObject("createdAt", LocalDateTime.class))
+            .likeCount(resultSet.getLong("likeCount"))
+            .version(resultSet.getLong("version"))
+            .build();
 
     final static private RowMapper<DailyPostCount> DAILY_POST_COUNT_MAPPER = (ResultSet resultSet, int rowNum) -> new DailyPostCount(resultSet.getLong("memberID"), resultSet.getObject("createdDate", LocalDate.class), resultSet.getLong("count"));
 
@@ -55,6 +64,16 @@ public class PostRepository {
                 """, TABLE, PageHelper.orberBy(pageable.getSort()));
         var posts = namedParameterJdbcTemplate.query(sql, params, ROW_MAPPER);
         return new PageImpl(posts, pageable, getCount(memberId));
+    }
+
+    public Optional<Post> findById(Long postId, Boolean requiredLock) {
+        var sql = String.format("SELECT * FROM %s WHERE id = :postId", TABLE);
+        if (requiredLock) {
+            sql += "FOR UPDATE";
+        }
+        var params = new MapSqlParameterSource().addValue("postId", postId);
+        var nullablePost = namedParameterJdbcTemplate.queryForObject(sql, params, ROW_MAPPER);
+        return Optional.ofNullable(nullablePost);
     }
 
     private Long getCount(Long memberId) {
@@ -139,7 +158,7 @@ public class PostRepository {
 
     public Post save(Post post) {
         if (post.getId() == null) return insert(post);
-        throw new UnsupportedOperationException("Post는 갱신을 지원하지 않습니다.");
+        return update(post);
     }
 
     public void bulkInsert(List<Post> posts) {
@@ -157,6 +176,26 @@ public class PostRepository {
         var id = jdbcInsert.executeAndReturnKey(params).longValue();
 
         return Post.builder().id(id).memberId(post.getMemberId()).contents(post.getContents()).createdDate(post.getCreatedDate()).createdAt(post.getCreatedAt()).build();
+    }
+
+    private Post update(Post post) {
+        var sql = String.format("""
+                UPDATE %s set
+                    memberId = :memberId,
+                    contents = :contents,
+                    createdDate = :createdDate,
+                    likeCount = :likeCount,
+                    createdAt = :createdAt
+                    version = :version + 1
+                WHERE id = :id and version = :version
+                """, TABLE);
+        SqlParameterSource params = new BeanPropertySqlParameterSource(post);
+        var updatedCount = namedParameterJdbcTemplate.update(sql, params);
+        if (updatedCount == 0) {
+            throw new RuntimeException("갱신실패");
+        }
+
+        return post;
     }
 
 }
